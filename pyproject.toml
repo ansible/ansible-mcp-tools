@@ -10,6 +10,10 @@ dependencies = [
     "httpx>=0.28.1",
     "mcp[cli]>=1.9.0",
     "pyjwt>=2.10.1",
+    "mcp>=1.9.2",
+    "requests>=2.32.3",
+    "PyYAML>=6.0.2",
+    "fire>=0.7.0",
 ]
 
 [build-system]
@@ -17,4 +21,4 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["ansible_mcp_tools"]
+packages = ["ansible_mcp_tools", "aap_controller_api_2_5", "aap_gateway_api_2_5"]

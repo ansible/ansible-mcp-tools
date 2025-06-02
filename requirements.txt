@@ -1,0 +1,5 @@
+mcp>=1.9.2
+requests>=2.32.3
+PyYAML>=6.0.2
+fire>=0.7.0
+shortuuid

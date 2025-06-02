@@ -8,8 +8,8 @@ wheels/
 
 # Virtual environments
 .venv
+venv
 
 # dev
 .idea
-
-
+**/*.iml
