@@ -42,3 +42,10 @@ jobs:
           push: true
           file: aap_controller_api_2_5/Containerfile
           tags: quay.io/ansible/ansible-mcp-controller:${{ env.ANSIBLE_MCP_VERSION }}
+
+      - name: Ansible Lightspeed MCP Server build and push
+        uses: docker/build-push-action@v6
+        with:
+          push: true
+          file: aap_lightspeed_api_1_0/Containerfile
+          tags: quay.io/ansible/ansible-mcp-lightspeed:${{ env.ANSIBLE_MCP_VERSION }}
