@@ -28,6 +28,11 @@ URL = environ.get("OPENAPI_SPEC_URL")
 HOST = environ.get("HOST", "127.0.0.1")
 PORT = environ.get("PORT", 8003)
 
+logger.info(f"AAP_GATEWAY_URL: {AAP_GATEWAY_URL}")
+logger.info(f"OPENAPI_SPEC_URL: {URL}")
+logger.info(f"HOST: {HOST}")
+logger.info(f"PORT: {PORT}")
+
 register_service_url("gateway", AAP_GATEWAY_URL)
 
 mcp = LightspeedOpenAPIAAPServer(

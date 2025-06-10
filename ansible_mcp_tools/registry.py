@@ -1,12 +1,6 @@
 from urllib.parse import urljoin
 
-from mcp.server.fastmcp import FastMCP
 from dataclasses import dataclass
-
-from ansible_mcp_tools.sample_aap_tool import (
-    fetch_current_user_data,
-    fetch_aap_controller_jobs_list,
-)
 
 
 @dataclass
@@ -19,11 +13,6 @@ class AAPService:
 _hosts_registry: dict[str:str] = {}
 
 _aap_services_registry: dict[str:AAPService] = {}
-
-
-def register_sample_tools(mcp: FastMCP):
-    mcp.add_tool(fetch_current_user_data)
-    mcp.add_tool(fetch_aap_controller_jobs_list)
 
 
 def register_service_url(name: str, service_url: str) -> None:

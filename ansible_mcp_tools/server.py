@@ -18,7 +18,7 @@ from mcp.types import (
     TextContent,
 )
 from starlette.applications import Starlette
-from typing import Any, override, TypeVar, Generic
+from typing import Any, override
 
 logger = get_logger(__name__)
 

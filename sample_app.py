@@ -1,6 +1,6 @@
 from os import environ
 
-from ansible_mcp_tools.registry import register_service_url, register_sample_tools
+from ansible_mcp_tools.registry import register_service_url
 from ansible_mcp_tools.registry import init as init_registry
 from ansible_mcp_tools.server import LightspeedBaseAAPServer
 
@@ -10,6 +10,10 @@ from ansible_mcp_tools.authentication.validators.aap_token_validator import (
 )
 from ansible_mcp_tools.authentication.validators.aap_jwt_validator import (
     AAPJWTValidator,
+)
+from ansible_mcp_tools.sample_aap_tool import (
+    fetch_current_user_data,
+    fetch_aap_controller_jobs_list,
 )
 
 from mcp.server.fastmcp.utilities.logging import configure_logging
@@ -36,8 +40,8 @@ mcp = LightspeedBaseAAPServer(
     port=3180,
 )
 
-
-register_sample_tools(mcp)
+mcp.add_tool(fetch_current_user_data)
+mcp.add_tool(fetch_aap_controller_jobs_list)
 
 if __name__ == "__main__":
     mcp.run(transport="sse")

@@ -1,0 +1,113 @@
+# Makefile for Ansible MCP Servers
+
+# Default values for environment variables
+QUAY_ORG ?=
+ANSIBLE_MCP_VERSION ?=
+
+# Colors for terminal output
+RED := \033[0;31m
+NC := \033[0m # No Color
+
+.PHONY: help build-all build-gateway build-controller run-gateway run-controller tag-and-push
+
+.EXPORT_ALL_VARIABLES:
+
+help:
+	@echo "Makefile for Ansible MCP Servers"
+	@echo "Available targets:"
+	@echo "  help                 - Show this help message"
+	@echo "  build-all            - Build the Ansible MCP Server images"
+	@echo "  build-gateway        - Build the Ansible MCP Gateway Server image"
+	@echo "  build-controller     - Build the Ansible MCP Controller Server image"
+	@echo "  run-gateway          - Run an Ansible MCP Gateway Server container"
+	@echo "  run-controller       - Run an Ansible MCP Controller Server container"
+	@echo "  tag-and-push         - Tag and push the container image to quay.io"
+	@echo ""
+	@echo "Required Environment variables:"
+	@echo "  ANSIBLE_MCP_VERSION  - Version tag for the image (default: $(ANSIBLE_MCP_VERSION))"
+	@echo "  AAP_GATEWAY_URL      - URL for an AAP Gateway instance"
+	@echo "  AAP_SERVICE_URL      - URL for an AAP Controller instance"
+	@echo "  QUAY_ORG             - Quay organization name (default: $(QUAY_ORG))"
+
+build-all: build-gateway build-controller
+
+build-gateway:
+	@echo "Building Ansible Gateway MCP Server image..."
+	docker build -f ./aap_gateway_api_2_5/Containerfile -t ansible-mcp-gateway .
+	@echo "Image $(RED)ansible-mcp-gateway$(NC) built successfully."
+
+build-controller:
+	@echo "Building Ansible Controller MCP Server image..."
+	docker build -f ./aap_controller_api_2_5/Containerfile -t ansible-mcp-controller .
+	@echo "Image $(RED)ansible-mcp-controller$(NC) built successfully."
+
+# Pre-check for required environment variables
+check-env-gateway-url:
+	@if [ -z "$(AAP_GATEWAY_URL)" ]; then \
+		echo "$(RED)Error: AAP_GATEWAY_URL is required but not set$(NC)"; \
+		exit 1; \
+	fi
+
+check-env-service-url:
+	@if [ -z "$(AAP_SERVICE_URL)" ]; then \
+		echo "$(RED)Error: AAP_SERVICE_URL is required but not set$(NC)"; \
+		exit 1; \
+	fi
+
+run-gateway: check-env-gateway-url
+	@echo "Running Ansible Gateway MCP Server container..."
+	@echo "Using AAP_GATEWAY_URL: $(AAP_GATEWAY_URL)"
+	docker run \
+		-p 8003:8003 \
+		--env AAP_GATEWAY_URL=${AAP_GATEWAY_URL} \
+		--env HOST=0.0.0.0 \
+		--env PORT=8003 \
+		ansible-mcp-gateway
+
+run-controller: check-env-gateway-url check-env-service-url
+	@echo "Running Ansible Controller MCP Server container..."
+	@echo "Using AAP_GATEWAY_URL: $(AAP_GATEWAY_URL)"
+	@echo "Using AAP_SERVICE_URL: $(AAP_SERVICE_URL)"
+	docker run \
+		-p 8004:8004 \
+		--env AAP_GATEWAY_URL=${AAP_GATEWAY_URL} \
+		--env AAP_SERVICE_URL=${AAP_SERVICE_URL} \
+		--env HOST=0.0.0.0 \
+		--env PORT=8004 \
+		ansible-mcp-controller
+
+clean:
+	@echo "Cleaning up..."
+	@echo "Removing ansible-mcp-gateway images..."
+	docker rmi -f $$(docker images -a -q --filter reference=ansible-mcp-gateway) || true
+	@echo "Removing ansible-mcp-controller images..."
+	docker rmi -f $$(docker images -a -q --filter reference=ansible-mcp-controller) || true
+	@echo "Clean-up complete."
+
+# Pre-check required environment variables for tag-and-push
+check-env-tag-and-push:
+	@if [ -z "$(QUAY_ORG)" ]; then \
+		echo "$(RED)Error: QUAY_ORG is required but not set$(NC)"; \
+		exit 1; \
+	fi
+	@if [ -z "$(ANSIBLE_MCP_VERSION)" ]; then \
+		echo "$(RED)Error: ANSIBLE_MCP_VERSION is required but not set$(NC)"; \
+		exit 1; \
+	fi
+
+tag-and-push: check-env-tag-and-push
+	@echo "Logging in to quay.io..."
+	@echo "Please enter your quay.io credentials when prompted"
+	docker login quay.io
+
+	@echo "Tagging image ansible-mcp-gateway:$(ANSIBLE_MCP_VERSION)"
+	docker tag ansible-mcp-gateway:latest quay.io/$(QUAY_ORG)/ansible-mcp-gateway:$(ANSIBLE_MCP_VERSION)
+	@echo "Pushing image to quay.io..."
+	docker push quay.io/$(QUAY_ORG)/ansible-mcp-gateway:$(ANSIBLE_MCP_VERSION)
+	@echo "Image successfully pushed to quay.io/$(QUAY_ORG)/ansible-mcp-gateway:$(ANSIBLE_MCP_VERSION)"
+
+	@echo "Tagging image ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)"
+	docker tag ansible-mcp-controller:latest quay.io/$(QUAY_ORG)/ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)
+	@echo "Pushing image to quay.io..."
+	docker push quay.io/$(QUAY_ORG)/ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)
+	@echo "Image successfully pushed to quay.io/$(QUAY_ORG)/ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)"
