@@ -1,4 +1,4 @@
-FROM registry.access.redhat.com/ubi9/ubi:latest AS production
+FROM registry.access.redhat.com/ubi9/python-312-minimal:latest AS production
 
 ENV AAP_GATEWAY_URL=${AAP_GATEWAY_URL}
 ENV AAP_SERVICE_URL=${AAP_SERVICE_URL}
@@ -8,11 +8,6 @@ ENV PORT=${PORT}
 ENV PYTHONUNBUFFERED=1
 ENV DEBUG=True
 
-# Install dependencies
-RUN dnf install -y \
-    python3.12 \
-    python3.12-pip
-
 USER 1000
 WORKDIR /var/www/
 
@@ -21,11 +16,7 @@ COPY aap_controller_api_2_5/server.py ./
 COPY aap_controller_api_2_5/aap-controller-api.json ./
 COPY aap_controller_api_2_5/pyproject.toml ./pyproject.toml
 
-# Compile application
-RUN /usr/bin/python3.12 -m venv /var/www/venv
-ENV PATH="/var/www/venv/bin:${PATH}"
-
-RUN python3.12 -m pip install --no-cache-dir --no-binary=all .
+RUN python -m pip install --no-cache-dir --no-binary=all .
 
 # Launch!
 ENTRYPOINT ["python3.12", "server.py"]
