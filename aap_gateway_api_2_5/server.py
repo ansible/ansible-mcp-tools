@@ -11,9 +11,6 @@ from ansible_mcp_tools.authentication import LightspeedAuthenticationBackend
 from ansible_mcp_tools.authentication.validators.aap_token_validator import (
     AAPTokenValidator,
 )
-from ansible_mcp_tools.authentication.validators.aap_jwt_validator import (
-    AAPJWTValidator,
-)
 from mcp.server.fastmcp.utilities.logging import configure_logging
 
 
@@ -40,7 +37,6 @@ mcp = LightspeedOpenAPIAAPServer(
     service_name="gateway",
     auth_backend=LightspeedAuthenticationBackend(
         authentication_validators=[
-            AAPJWTValidator(AAP_GATEWAY_URL, verify_cert=False),
             AAPTokenValidator(AAP_GATEWAY_URL, verify_cert=False),
         ]
     ),
