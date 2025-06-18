@@ -1,12 +1,11 @@
-# Ansible MCP tools
+# Ansible MCP servers
 
-MCP tools for Ansible services
+## Disclaimer
 
-Run the sample_app module
+These are experimental MCP servers for Ansible services to support Ansible Lightspeed Intelligent Assistant.
 
-sample queries: 
+They are not official Ansible MCP servers and are therefore subject to change or removal.
 
-- "get the current user information"
-- "get the current user email information"
-- "get the aap controller failed jobs list display the id name started and status fields "
+They require an instance of Ansible Automation Platform to fully operate.
 
+Use at your own risk.
