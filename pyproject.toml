@@ -3,7 +3,7 @@ name = "ansible-mcp-tools"
 version = "0.1.0"
 description = "mcp server for ansible services"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "cachetools>=6.0.0",
     "cryptography>=45.0.2",
@@ -21,4 +21,4 @@ requires = ["setuptools"]
 build-backend = "setuptools.build_meta"
 
 [tool.setuptools]
-packages = ["ansible_mcp_tools", "aap_controller_api_2_5", "aap_gateway_api_2_5"]
+packages = ["ansible_mcp_tools", "aap_controller_api_2_5", "aap_gateway_api_2_5", "aap_lightspeed_api_1_0"]

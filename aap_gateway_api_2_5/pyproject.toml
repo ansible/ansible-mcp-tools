@@ -3,7 +3,7 @@ name = "aap-gateway-2-5"
 version = "0.0.1"
 description = "AAP Gateway API 2.5 MCP Server"
 readme = "README.md"
-requires-python = ">=3.10"
+requires-python = ">=3.12"
 dependencies = [
     "cachetools>=6.0.0",
     "cryptography>=45.0.2",
