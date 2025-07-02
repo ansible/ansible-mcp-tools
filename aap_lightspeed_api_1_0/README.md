@@ -9,20 +9,14 @@
 - `PORT`: Host port for the MCP server, default `8005`
 
 ## Building the Container
-```commandline
-docker build -f ./aap_lightspeed_api_1_0/Containerfile -t ansible-mcp-lightspeed .
+```bash
+make build-lightspeed
 ```
 
 ## Running from Container
 
-```commandline
+```bash
 export AAP_GATEWAY_URL=<...>
 export AAP_SERVICE_URL=<...>
-docker run \
-  -p 8005:8005 \
-  --env AAP_GATEWAY_URL=${AAP_GATEWAY_URL} \
-  --env AAP_SERVICE_URL=${AAP_SERVICE_URL} \
-  --env HOST=0.0.0.0 \
-  --env PORT=8005 \
-  ansible-mcp-lightspeed
+make run-lightspeed
 ```

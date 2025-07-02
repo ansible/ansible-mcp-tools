@@ -1,5 +1,10 @@
 FROM registry.access.redhat.com/ubi9/python-312-minimal:latest AS production
 
+ARG AAP_GATEWAY_URL
+ARG AAP_SERVICE_URL
+ARG HOST
+ARG PORT
+
 ENV AAP_GATEWAY_URL=${AAP_GATEWAY_URL}
 ENV AAP_SERVICE_URL=${AAP_SERVICE_URL}
 ENV OPENAPI_SPEC_URL="file:///var/www/aap-lightspeed-api.yaml"
@@ -8,7 +13,7 @@ ENV PORT=${PORT}
 ENV PYTHONUNBUFFERED=1
 ENV DEBUG=True
 
-USER 1000
+USER root
 WORKDIR /var/www/
 
 COPY ansible_mcp_tools/ ./ansible_mcp_tools/
@@ -17,6 +22,8 @@ COPY aap_lightspeed_api_1_0/aap-lightspeed-api.yaml ./
 COPY aap_lightspeed_api_1_0/pyproject.toml ./pyproject.toml
 
 RUN python -m pip install --no-cache-dir --no-binary=all .
+
+USER 1000
 
 # Launch!
 ENTRYPOINT ["python3.12", "server.py"]
