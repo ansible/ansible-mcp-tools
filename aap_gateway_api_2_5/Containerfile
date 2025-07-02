@@ -1,12 +1,8 @@
 FROM registry.access.redhat.com/ubi9/python-312-minimal:latest AS production
 
-ARG AAP_GATEWAY_URL
-ARG HOST
 ARG PORT
 
-ENV AAP_GATEWAY_URL=${AAP_GATEWAY_URL}
 ENV OPENAPI_SPEC_URL="file:///var/www/aap-gateway-api.yaml"
-ENV HOST=${HOST}
 ENV PORT=${PORT}
 ENV PYTHONUNBUFFERED=1
 ENV DEBUG=True

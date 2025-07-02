@@ -4,8 +4,11 @@
 QUAY_ORG ?=
 ANSIBLE_MCP_VERSION ?=
 CONTAINER_RUNTIME ?= docker
+MCP_GATEWAY_HOST ?= 127.0.0.1
 MCP_GATEWAY_PORT ?= 8003
+MCP_CONTROLLER_HOST ?= 127.0.0.1
 MCP_CONTROLLER_PORT ?= 8004
+MCP_LIGHTSPEED_HOST ?= 127.0.0.1
 MCP_LIGHTSPEED_PORT ?= 8005
 
 # Colors for terminal output
@@ -40,17 +43,23 @@ build-all: build-gateway build-controller build-lightspeed
 
 build-gateway:
 	@echo "Building Ansible Gateway MCP Server image..."
-	${CONTAINER_RUNTIME} build --build-arg PORT=${MCP_GATEWAY_PORT} -f ./aap_gateway_api_2_5/Containerfile -t ansible-mcp-gateway .
+	${CONTAINER_RUNTIME} build \
+		--build-arg PORT=${MCP_GATEWAY_PORT} \
+		-f ./aap_gateway_api_2_5/Containerfile -t ansible-mcp-gateway .
 	@echo "Image $(RED)ansible-mcp-gateway$(NC) built successfully."
 
 build-controller:
 	@echo "Building Ansible Controller MCP Server image..."
-	${CONTAINER_RUNTIME} build --build-arg PORT=${MCP_CONTROLLER_PORT} -f ./aap_controller_api_2_5/Containerfile -t ansible-mcp-controller .
+	${CONTAINER_RUNTIME} build \
+		 --build-arg PORT=${MCP_CONTROLLER_PORT} \
+		 -f ./aap_controller_api_2_5/Containerfile -t ansible-mcp-controller .
 	@echo "Image $(RED)ansible-mcp-controller$(NC) built successfully."
 
 build-lightspeed:
 	@echo "Building Ansible Lightspeed MCP Server image..."
-	${CONTAINER_RUNTIME} build --build-arg PORT=${MCP_LIGHTSPEED_PORT} -f ./aap_lightspeed_api_1_0/Containerfile -t ansible-mcp-lightspeed .
+	${CONTAINER_RUNTIME} build \
+		--build-arg PORT=${MCP_LIGHTSPEED_PORT} \
+		-f ./aap_lightspeed_api_1_0/Containerfile -t ansible-mcp-lightspeed .
 	@echo "Image $(RED)ansible-mcp-lightspeed$(NC) built successfully."
 
 # Pre-check for required environment variables
@@ -78,7 +87,7 @@ run-gateway: check-env-gateway-url
 	${CONTAINER_RUNTIME} run \
 		-p ${MCP_GATEWAY_PORT}:${MCP_GATEWAY_PORT} \
 		--env AAP_GATEWAY_URL=${AAP_GATEWAY_URL} \
-		--env HOST=0.0.0.0 \
+		--env HOST=${MCP_GATEWAY_HOST} \
 		--env PORT=${MCP_GATEWAY_PORT} \
 		ansible-mcp-gateway
 
@@ -90,7 +99,7 @@ run-controller: check-env-gateway-url check-env-controller-service-url
 		-p ${MCP_CONTROLLER_PORT}:${MCP_CONTROLLER_PORT} \
 		--env AAP_GATEWAY_URL=${AAP_GATEWAY_URL} \
 		--env AAP_SERVICE_URL=${AAP_CONTROLLER_SERVICE_URL} \
-		--env HOST=0.0.0.0 \
+		--env HOST=${MCP_CONTROLLER_HOST} \
 		--env PORT=${MCP_CONTROLLER_PORT} \
 		ansible-mcp-controller
 
