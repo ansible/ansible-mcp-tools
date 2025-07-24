@@ -43,6 +43,11 @@ build-gateway:
 	${CONTAINER_RUNTIME} build --build-arg PORT=${MCP_GATEWAY_PORT} -f ./aap_gateway_api_2_5/Containerfile -t ansible-mcp-gateway .
 	@echo "Image $(RED)ansible-mcp-gateway$(NC) built successfully."
 
+build-controller-24:
+	@echo "Building Ansible Controller 2.4 MCP Server image..."
+	${CONTAINER_RUNTIME} build --build-arg PORT=${MCP_CONTROLLER_PORT} -f ./aap_controller_api_2_4/Containerfile -t ansible-mcp-controller-24 .
+	@echo "Image $(RED)ansible-mcp-controller-24$(NC) built successfully."
+
 build-controller:
 	@echo "Building Ansible Controller MCP Server image..."
 	${CONTAINER_RUNTIME} build --build-arg PORT=${MCP_CONTROLLER_PORT} -f ./aap_controller_api_2_5/Containerfile -t ansible-mcp-controller .
@@ -81,6 +86,16 @@ run-gateway: check-env-gateway-url
 		--env HOST=0.0.0.0 \
 		--env PORT=${MCP_GATEWAY_PORT} \
 		ansible-mcp-gateway
+
+run-controller-24: check-env-controller-service-url
+	@echo "Running Ansible Controller 2.4 MCP Server container..."
+	@echo "Using AAP_CONTROLLER_SERVICE_URL: $(AAP_CONTROLLER_SERVICE_URL)"
+	${CONTAINER_RUNTIME} run \
+		-p ${MCP_CONTROLLER_PORT}:${MCP_CONTROLLER_PORT} \
+		--env AAP_SERVICE_URL=${AAP_CONTROLLER_SERVICE_URL} \
+		--env HOST=0.0.0.0 \
+		--env PORT=${MCP_CONTROLLER_PORT} \
+		ansible-mcp-controller-24
 
 run-controller: check-env-gateway-url check-env-controller-service-url
 	@echo "Running Ansible Controller MCP Server container..."
@@ -142,6 +157,12 @@ tag-and-push: check-env-tag-and-push
 	${CONTAINER_RUNTIME} tag ansible-mcp-controller:latest quay.io/$(QUAY_ORG)/ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)
 	@echo "Pushing image to quay.io..."
 	${CONTAINER_RUNTIME} push quay.io/$(QUAY_ORG)/ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)
+	@echo "Image successfully pushed to quay.io/$(QUAY_ORG)/ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)"
+
+	@echo "Tagging image ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)"
+	${CONTAINER_RUNTIME} tag ansible-mcp-controller-24:latest quay.io/$(QUAY_ORG)/ansible-mcp-controller-24:$(ANSIBLE_MCP_VERSION)
+	@echo "Pushing image to quay.io..."
+	${CONTAINER_RUNTIME} push quay.io/$(QUAY_ORG)/ansible-mcp-controller-24:$(ANSIBLE_MCP_VERSION)
 	@echo "Image successfully pushed to quay.io/$(QUAY_ORG)/ansible-mcp-controller:$(ANSIBLE_MCP_VERSION)"
 
 	@echo "Tagging image ansible-mcp-lightspeed:$(ANSIBLE_MCP_VERSION)"

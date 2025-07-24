@@ -6,7 +6,7 @@ from abc import ABC
 from os import environ
 from typing import Dict, List, override
 
-from ansible_mcp_tools.registry import get_aap_service, AAPService
+from ansible_mcp_tools.service import BaseService
 from ansible_mcp_tools.openapi.protocols.tool_caller import ToolCaller
 from ansible_mcp_tools.openapi.protocols.tool_name_strategy import ToolNameStrategy
 from ansible_mcp_tools.authentication.context import (
@@ -33,16 +33,16 @@ class BaseToolCaller(ToolCaller, ABC):
         self._service_name = service_name
         self._tool_name_strategy = tool_name_strategy
 
-
 class DefaultToolCaller(BaseToolCaller):
     def __init__(
         self,
         spec: Dict,
         tools: List[types.Tool],
-        service_name: str,
+        service: BaseService,
         tool_name_strategy: ToolNameStrategy,
     ):
-        super().__init__(spec, tools, service_name, tool_name_strategy)
+        super().__init__(spec, tools, service.name, tool_name_strategy)
+        self._service = service
 
     @override
     async def tool_call(self, name: str, arguments: dict) -> list[types.TextContent]:
@@ -139,18 +139,15 @@ class DefaultToolCaller(BaseToolCaller):
                 )
 
             # Look-up and construct applicable URL
-            path = path.lstrip("/")
-            service: AAPService = get_aap_service(self._service_name)
-            path = path.lstrip(service.gateway_base_path)
-
+ 
             auth_user = auth_context_var.get()
+
             headers = get_authentication_headers()
             verify_cert = (
                 auth_user.authentication_info.verify_cert if auth_user else True
             )
-            api_url = utils.get_aap_service_url_path(
-                self._service_name, auth_user.authentication_info.header_name, path
-            )
+
+            api_url =  self._service.api_url_builder(path, header_name=auth_user.authentication_info.header_name)
 
             if method != "GET":
                 headers["Content-Type"] = "application/json"

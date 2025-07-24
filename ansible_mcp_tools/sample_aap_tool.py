@@ -1,6 +1,6 @@
 import httpx
 
-from ansible_mcp_tools import utils
+from ansible_mcp_tools.registry import AAPRegistry
 
 from mcp.server.fastmcp.utilities.logging import get_logger
 
@@ -11,12 +11,14 @@ from ansible_mcp_tools.authentication.context import (
 
 logger = get_logger(__name__)
 
+registry = AAPRegistry()
 
 async def fetch_current_user_data(context="lightspeed") -> str:
     """return the current logged-in AAP user information"""
     auth_user = auth_context_var.get()
     auth_headers = get_authentication_headers()
-    server_url_path = utils.get_aap_service_url_path(
+    registry = AAPRegistry()
+    server_url_path = registry.get_aap_service_url_path(
         "controller", auth_user.authentication_info.header_name, "/v2/me/"
     )
     verify_cert = auth_user.authentication_info.verify_cert if auth_user else True
@@ -33,7 +35,7 @@ async def fetch_aap_controller_jobs_list(
     auth_user = auth_context_var.get()
     auth_headers = get_authentication_headers()
     verify_cert = auth_user.authentication_info.verify_cert if auth_user else True
-    server_url_path = utils.get_aap_service_url_path(
+    server_url_path = registry.get_aap_service_url_path(
         "controller", auth_user.authentication_info.header_name, "/api/v2/jobs/"
     )
     async with httpx.AsyncClient(verify=verify_cert) as client:
