@@ -1,0 +1,1 @@
+from .aap_inventory_tool import generate_command
