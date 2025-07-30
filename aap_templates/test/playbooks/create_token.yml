@@ -1,0 +1,46 @@
+- name: Create token
+
+  hosts: localhost
+  gather_facts: false
+  connection: local
+
+  vars:
+    gateway_host: "{{ lookup('ansible.builtin.env', 'ANSIBLE_BASE_URL', default='') }}"
+    gateway_username: "{{ lookup('ansible.builtin.env', 'GATEWAY_USERNAME', default='admin') }}"
+    gateway_password: "{{ lookup('ansible.builtin.env', 'GATEWAY_PASSWORD', default='') }}"
+
+  tasks:
+  - name: Add MCP Templates application
+    ansible.platform.application:
+      name: "Ansible MCP Templates"
+      description: "Ansible MCP Templates application"
+      organization: "Ansible MCP Templates"
+      state: present
+      authorization_grant_type: authorization-code
+      client_type: public
+      redirect_uris:
+      - "{{ gateway_host }}/oauth2/callback"
+      aap_hostname: "{{ gateway_host }}"
+      aap_username: "{{ gateway_username }}"
+      aap_password: "{{ gateway_password }}"
+    register: application
+
+  - name: Display application
+    ansible.builtin.debug:
+      msg: "client_id: {{ application.client_id }}"
+
+  - name: Create Token
+    ansible.platform.token:
+      application: "Ansible MCP Templates"     
+      state: present
+      aap_hostname: "{{ gateway_host }}"
+      aap_username: "{{ gateway_username }}"
+      aap_password: "{{ gateway_password }}"
+    register: token
+
+  - name: Display Token
+    ansible.builtin.debug:
+      msg: 
+      - "Token: {{ aap_token.token }}"
+      - "Refresh token: {{ aap_token.refresh_token }}"
+

@@ -1,0 +1,224 @@
+---
+- name: Templates seeding
+
+  hosts: localhost
+  gather_facts: false
+  connection: local
+
+  vars:
+    github_user: "{{ lookup('ansible.builtin.env', 'GITHUB_USER', default='') }}"
+    github_ssh_key: "{{ lookup('ansible.builtin.env', 'GITHUB_SSH_KEY', default='') }}"
+
+    scm_repo_organization: "{{ lookup('ansible.builtin.env', 'SCM_REPO_ORGANIZATION', default='ansible') }}"
+    scm_repo_branch: "{{ lookup('ansible.builtin.env', 'SCM_REPO_BRANCH', default='main') }}"
+
+    gateway_host: "{{ lookup('ansible.builtin.env', 'ANSIBLE_BASE_URL', default='') }}"
+    gateway_username: "{{ lookup('ansible.builtin.env', 'GATEWAY_USERNAME', default='admin') }}"
+    gateway_password: "{{ lookup('ansible.builtin.env', 'GATEWAY_PASSWORD', default='') }}"
+
+
+  module_defaults:
+    ansible.controller.job_template:
+      controller_host: "{{ gateway_host }}"
+      controller_username: "{{ gateway_username }}"
+      controller_password: "{{ gateway_password }}"
+      validate_certs: false
+    ansible.platform.organization:
+      gateway_hostname: "{{ gateway_host }}"
+      gateway_username: "{{ gateway_username }}"
+      gateway_password: "{{ gateway_password }}"
+      gateway_validate_certs: false
+      validate_certs: false
+
+  tasks:
+    - name: Validate existence of required environment variables
+      ansible.builtin.assert:
+        that:
+          - github_user != ""
+          - github_ssh_key != ""
+          - gateway_host != ""
+          - gateway_password != ""
+        fail_msg: The required environment tokens were not found.
+        success_msg: Required authentication tokens are available.
+
+
+    - name: Configure management instance
+      block:
+        - name: Create organization
+          ansible.platform.organization:
+            name: Ansible MCP Templates
+            description: Red Hat - Ansible MCP Templates
+            state: present
+
+        - name: Create Deployment key for ansible-saas-sre repo
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.credential:
+            controller_host: "{{ gateway_host }}"
+            controller_username: "{{ gateway_username }}"
+            controller_password: "{{ gateway_password }}"
+            validate_certs: false
+            name: Github SCM SSH KEY
+            organization: Ansible MCP Templates
+            state: present
+            credential_type: Source Control
+            inputs:
+              username: "{{ github_user }}"
+              ssh_key_data: "{{ github_ssh_key | b64decode }} "
+              # ssh_key_unlock: "{{ github_ssh_passphrase }}"
+              
+        - name: Create project
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.project:
+            controller_host: "{{ gateway_host }}"
+            controller_username: "{{ gateway_username }}"
+            controller_password: "{{ gateway_password }}"
+            validate_certs: false
+            organization: Ansible MCP Templates
+            name: Ansible MCP Playbooks
+            credential: Github SCM SSH KEY
+            scm_allow_override: true
+            scm_update_on_launch: true
+            scm_delete_on_update: true
+            scm_update_cache_timeout: 600
+            scm_url: "git@github.com:{{ scm_repo_organization }}/ansible-mcp-tools.git"
+            scm_type: git
+            scm_branch: "{{ scm_repo_branch }}"
+            update_project: true
+
+        - name: Configure Playbook execution environment
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.execution_environment:
+            controller_host: "{{ gateway_host }}"
+            controller_username: "{{ gateway_username }}"
+            controller_password: "{{ gateway_password }}"
+            validate_certs: false
+            name: Ansible MCP Playbook Execution Environment
+            description: Execution environment for running SRE playbooks.
+            image: "localhost:5001/aap25-next/ee-supported-rhel8:2.5-next"
+            pull: always
+
+        - name: Create "Hello World" job template
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.job_template:
+            name: Hello World
+            organization: Ansible MCP Templates
+            project: Ansible MCP Playbooks
+            playbook: aap_templates/test/playbooks/hello_world.yml
+            concurrent_jobs_enabled: true
+            inventory: Demo Inventory
+            state: present
+            ask_scm_branch_on_launch: true
+            ask_inventory_on_launch: false
+            execution_environment: Ansible MCP Playbook Execution Environment
+            job_type: run
+
+        - name: Create "Hello First Name Extra Vars" job template
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.job_template:
+            name: Hello First Name Extra Vars
+            organization: Ansible MCP Templates
+            project: Ansible MCP Playbooks
+            playbook: aap_templates/test/playbooks/hello_first_name.yml
+            concurrent_jobs_enabled: true
+            inventory: Demo Inventory
+            state: present
+            ask_scm_branch_on_launch: true
+            ask_inventory_on_launch: false
+            execution_environment: Ansible MCP Playbook Execution Environment
+            job_type: run
+            extra_vars:
+              first_name: ""
+
+        - name: Create "Hello First Name And Middle Name Extra Vars" job template
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.job_template:
+            name: Hello First Name And Middle Name Extra Vars
+            organization: Ansible MCP Templates
+            project: Ansible MCP Playbooks
+            playbook: aap_templates/test/playbooks/hello_first_name_middle_name.yml
+            concurrent_jobs_enabled: true
+            inventory: Demo Inventory
+            state: present
+            ask_scm_branch_on_launch: true
+            ask_inventory_on_launch: false
+            execution_environment: Ansible MCP Playbook Execution Environment
+            job_type: run
+            extra_vars:
+              first_name: ""
+              middle_name: ""
+
+        - name: Create "Hello First Name Survey" job template
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.job_template:
+            name: Hello First Name Survey
+            organization: Ansible MCP Templates
+            project: Ansible MCP Playbooks
+            playbook: aap_templates/test/playbooks/hello_first_name.yml
+            concurrent_jobs_enabled: true
+            inventory: Demo Inventory
+            state: present
+            ask_scm_branch_on_launch: true
+            ask_inventory_on_launch: false
+            execution_environment: Ansible MCP Playbook Execution Environment
+            job_type: run
+            survey_enabled: true
+            survey_spec:
+              name: Hello First Name Survey
+              description: Says Hello First Name
+              spec:
+                - type: text
+                  question_name: First Name
+                  question_description: Provide the first name
+                  variable: first_name
+                  required: true
+
+        - name: Create "Hello First Name Extra Vars and Survey" job template
+          register: result
+          until: result is defined and result.failed == false
+          retries: 3
+          delay: 30
+          ansible.controller.job_template:
+            name: Hello First Name Extra Vars and Survey
+            organization: Ansible MCP Templates
+            project: Ansible MCP Playbooks
+            playbook: aap_templates/test/playbooks/hello_first_name.yml
+            concurrent_jobs_enabled: true
+            inventory: Demo Inventory
+            state: present
+            ask_scm_branch_on_launch: true
+            ask_inventory_on_launch: false
+            execution_environment: Ansible MCP Playbook Execution Environment
+            job_type: run
+            extra_vars:
+              first_name: ""
+            survey_enabled: true
+            survey_spec:
+              name: Hello First Name Survey
+              description: Says Hello First Name
+              spec:
+                - type: text
+                  question_name: First Name
+                  question_description: Provide the first name
+                  variable: first_name
+                  required: true

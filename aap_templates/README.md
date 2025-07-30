@@ -76,7 +76,7 @@ The server supports multiple transport protocols:
 |----------|-------------|---------|----------|
 | `ANSIBLE_BASE_URL` | Base URL of your Ansible AWX/Controller instance | - | ✅ |
 | `ANSIBLE_TOKEN` | Bearer token for authentication | - | ✅ |
-| `AAP_VERSION` | Ansible Automation Platform version (`2.4` uses `/api`, others use `/api/controller`) | `2.4` | ❌ |
+| `AAP_VERSION` | Ansible Automation Platform version (`2.4` uses `/api`, others use `/api/controller`) |  | ❌ |
 | `MCP_TRANSPORT` | Transport protocol: `stdio`, `http`, or `sse` | `stdio` | ❌ |
 | `MCP_HOST` | Host to bind the MCP server to (http/sse only) | `0.0.0.0` | ❌ |
 | `MCP_PORT` | Port to bind the MCP server to (http/sse only) | `8200` | ❌ |
@@ -137,8 +137,8 @@ The server supports multiple transport protocols:
    ```bash
    export ANSIBLE_BASE_URL="https://your-ansible-instance.com"
    export ANSIBLE_TOKEN="your-bearer-token-here"
-   export AAP_VERSION="2.4"      # Optional: AAP version (2.4 or other)
-   export MCP_TRANSPORT="stdio"  # Optional: stdio, http, or sse
+   export AAP_VERSION="2.4"      # Optional: AAP version (2.4 or other, default "" and so it will use /api/controller uri prefix to reach the controler)
+   export MCP_TRANSPORT="sse"  # Optional: stdio, http, or sse
    export MCP_HOST="0.0.0.0"     # Optional (for http/sse only)
    export MCP_PORT="8200"        # Optional (for http/sse only)
    ```
@@ -437,3 +437,44 @@ uv sync
 ## License
 
 This project is licensed under the MIT License - see the [LICENSE.md](LICENSE.md) file for details. 
+
+## Template Seeding
+
+You can seed your AAP instance with some templates in order to test the mcp server.
+
+### Environment variables:
+
+- ANSIBLE_BASE_URL: The base url, for example if you use aap-dev 2.5-next then it is http://localhost:44925
+- GATEWAY_USERNAME: Default `admin`
+- GATEWAY_PASSWORD: Gateway password
+- GITHUB_USER: Your gihub user, it is needed to download the SCM which is in fact this project or a clone of it.
+- GITHUB_SSH_KEY: Your `base64 encoded` Github SSH key with no passphrase (read: [Generate SSH KEY](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/generating-a-new-ssh-key-and-adding-it-to-the-ssh-agent#generating-a-new-ssh-key) and [Adding a new SSH key to your account](https://docs.github.com/en/authentication/connecting-to-github-with-ssh/adding-a-new-ssh-key-to-your-github-account#adding-a-new-ssh-key-to-your-account))
+- SCM_REPO_ORGANIZATION: The project organization (default ansible), can be set to your fork organization.
+- SCM_REPO_BRANCH: The branch you want to use (default main)
+
+### Launch the playbook:
+
+Then run the playbook from the aap_templates directory:
+```bash
+ansible-playbook test/playbooks/templates_seeding.yml 
+```
+
+## Create token
+
+In order to launch the mcp server, you need to create an controller application and a token.
+This playbook do that for you. It creates the application 'Ansible MCP Templates' on the controller and a token for the admin user.
+
+### Environment variables:
+
+- ANSIBLE_BASE_URL: The base url, for example if you use aap-dev 2.5-next then it is http://localhost:44925
+- GATEWAY_USERNAME: Default `admin`
+- GATEWAY_PASSWORD: Gateway password
+
+### Launch the playbook
+
+Then run the playbook from the aap_templates directory:
+```bash
+ansible-playbook test/playbooks/create_token.yml 
+```
+
+Then you can use the displayed token in the mcp configuration for the stack (Cursor or other) and when launching the mcp server.

@@ -15,7 +15,7 @@ logger = logging.getLogger(__name__)
 # Environment variables configuration
 ANSIBLE_BASE_URL = os.getenv("ANSIBLE_BASE_URL", "")
 ANSIBLE_TOKEN = os.getenv("ANSIBLE_TOKEN", "")
-AAP_VERSION = os.getenv("AAP_VERSION", "2.4")
+AAP_VERSION = os.getenv("AAP_VERSION")
 MCP_TRANSPORT = os.getenv("MCP_TRANSPORT", "stdio")
 MCP_HOST = os.getenv("MCP_HOST", "0.0.0.0") 
 MCP_PORT = int(os.getenv("MCP_PORT", "8200"))
@@ -85,7 +85,7 @@ def parse_extra_vars(extra_vars: Optional[str]) -> Optional[Dict[str, Any]]:
 class AnsibleClient:
     """Client for interacting with Ansible AWX/Controller API"""
     
-    def __init__(self, base_url: str, token: str, aap_version: str = "2.4"):
+    def __init__(self, base_url: str, token: str, aap_version: str):
         self.base_url = base_url.rstrip('/')
         self.token = token
         self.aap_version = aap_version
