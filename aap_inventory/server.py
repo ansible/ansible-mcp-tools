@@ -1,7 +1,6 @@
 # server.py
 import inspect
 import tempfile
-from types import SimpleNamespace
 from typing import Annotated, Literal
 from pydantic import Field
 from fastmcp import FastMCP
