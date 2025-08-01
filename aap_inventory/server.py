@@ -126,6 +126,10 @@ def get_inventory(
             str,
             Field(description='Passphrase for container signing key. If specified without value, will create templated variable.'),
         ] = '',
+        session_id: Annotated[
+            str,
+            Field(description='This is a dummy argument added only for llama-stack compatibility'),
+        ] = '',
 ) -> str:
     frame = inspect.currentframe()
     args_dict = inspect.getargvalues(frame).locals
@@ -135,7 +139,8 @@ def get_inventory(
 
     args = Args()
     for k,v in args_dict.items():
-        setattr(args, k, v)
+        if k != "session_id":
+            setattr(args, k, v)
 
     print(f"args: {args}")
 

@@ -1085,7 +1085,8 @@ def generate_command(args):
 
     if not required_params:
         print(f"Error: Unknown platform/topology combination: {args.platform} {args.topology}")
-        sys.exit(1)
+        # sys.exit(1) # @tamid
+        return
 
     # Check each required parameter
     for param in required_params:
@@ -1093,7 +1094,8 @@ def generate_command(args):
         if not value:
             param_display = param.replace('_', '-')
             print(f"Error: --{param_display} is required for {args.platform} {args.topology} topology")
-            sys.exit(1)
+            # sys.exit(1) # @tamid
+            return
 
     # Additional validation for enterprise topologies (minimum hosts requirements)
     if args.topology == 'enterprise':
@@ -1101,13 +1103,15 @@ def generate_command(args):
         execution_hosts = getattr(args, 'execution_hosts', [])
         if execution_hosts and len(execution_hosts) < 2:
             print("Error: --execution-hosts requires minimum 2 execution hosts for enterprise topology")
-            sys.exit(1)
+            # sys.exit(1) # @tamid
+            return
 
         # Validate Redis parameter if provided
         redis_hosts = getattr(args, 'redis', None)
         if redis_hosts is not None and len(redis_hosts) != 6:
             print("Error: --redis requires exactly 6 hosts for Redis cluster")
-            sys.exit(1)
+            # sys.exit(1) # @tamid
+            return
 
     # Create generator and generate inventory
     generator = InventoryGenerator(args.platform, args.topology)
