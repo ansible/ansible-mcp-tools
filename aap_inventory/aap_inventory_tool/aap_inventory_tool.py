@@ -518,7 +518,7 @@ class InventoryGenerator(InventoryProcessor):
         hub_signing_vars = []
         for param, (var_name, default_value) in var_mapping.items():
             if param in kwargs:
-                if kwargs[param] is not None and kwargs[param] != '':
+                if kwargs[param]:
                     # Value was provided
                     if param in ['hub_signing_auto_sign', 'hub_signing_require_content_approval']:
                         # Boolean parameters
@@ -576,7 +576,7 @@ class InventoryGenerator(InventoryProcessor):
         ca_cert_vars = []
         for param, (var_name, default_value) in var_mapping.items():
             if param in kwargs:
-                if kwargs[param] is not None and kwargs[param] != '':
+                if kwargs[param]:
                     # Value was provided
                     value = kwargs[param]
                     if isinstance(value, str):
@@ -686,7 +686,7 @@ eda_pg_password={{{{ eda_pg_password }}}}
             self.errors.append("--external-database is required for containerized enterprise topology")
 
         # Validate Redis hosts if provided
-        if redis_hosts is not None and len(redis_hosts) != 6:
+        if redis_hosts and len(redis_hosts) != 6:
             self.errors.append("--redis requires exactly 6 hosts for Redis cluster")
 
         if self.errors:
@@ -880,7 +880,7 @@ automationedacontroller_pg_password={{{{ automationedacontroller_pg_password }}}
             self.errors.append("--external-database is required for RPM enterprise topology")
 
         # Validate Redis hosts if provided
-        if redis_hosts is not None and len(redis_hosts) != 6:
+        if redis_hosts and len(redis_hosts) != 6:
             self.errors.append("--redis requires exactly 6 hosts for Redis cluster")
 
         if self.errors:
@@ -1108,7 +1108,7 @@ def generate_command(args):
 
         # Validate Redis parameter if provided
         redis_hosts = getattr(args, 'redis', None)
-        if redis_hosts is not None and len(redis_hosts) != 6:
+        if redis_hosts and len(redis_hosts) != 6:
             print("Error: --redis requires exactly 6 hosts for Redis cluster")
             # sys.exit(1) # @tamid
             return
@@ -1122,26 +1122,26 @@ def generate_command(args):
 
     # Add custom CA cert parameters if provided
     ca_cert_params = {}
-    if hasattr(args, 'custom_ca_cert') and args.custom_ca_cert is not None:
+    if hasattr(args, 'custom_ca_cert') and args.custom_ca_cert:
         ca_cert_params['custom_ca_cert'] = args.custom_ca_cert
-    if hasattr(args, 'ca_tls_cert') and args.ca_tls_cert is not None:
+    if hasattr(args, 'ca_tls_cert') and args.ca_tls_cert:
         ca_cert_params['ca_tls_cert'] = args.ca_tls_cert
-    if hasattr(args, 'ca_tls_key') and args.ca_tls_key is not None:
+    if hasattr(args, 'ca_tls_key') and args.ca_tls_key:
         ca_cert_params['ca_tls_key'] = args.ca_tls_key
 
     # Add hub signing parameters if provided
     hub_signing_params = {}
-    if hasattr(args, 'hub_signing_auto_sign') and args.hub_signing_auto_sign is not None:
+    if hasattr(args, 'hub_signing_auto_sign') and args.hub_signing_auto_sign:
         hub_signing_params['hub_signing_auto_sign'] = args.hub_signing_auto_sign
-    if hasattr(args, 'hub_signing_require_content_approval') and args.hub_signing_require_content_approval is not None:
+    if hasattr(args, 'hub_signing_require_content_approval') and args.hub_signing_require_content_approval:
         hub_signing_params['hub_signing_require_content_approval'] = args.hub_signing_require_content_approval
-    if hasattr(args, 'hub_signing_collection_key') and args.hub_signing_collection_key is not None:
+    if hasattr(args, 'hub_signing_collection_key') and args.hub_signing_collection_key:
         hub_signing_params['hub_signing_collection_key'] = args.hub_signing_collection_key
-    if hasattr(args, 'hub_signing_collection_pass') and args.hub_signing_collection_pass is not None:
+    if hasattr(args, 'hub_signing_collection_pass') and args.hub_signing_collection_pass:
         hub_signing_params['hub_signing_collection_pass'] = args.hub_signing_collection_pass
-    if hasattr(args, 'hub_signing_container_key') and args.hub_signing_container_key is not None:
+    if hasattr(args, 'hub_signing_container_key') and args.hub_signing_container_key:
         hub_signing_params['hub_signing_container_key'] = args.hub_signing_container_key
-    if hasattr(args, 'hub_signing_container_pass') and args.hub_signing_container_pass is not None:
+    if hasattr(args, 'hub_signing_container_pass') and args.hub_signing_container_pass:
         hub_signing_params['hub_signing_container_pass'] = args.hub_signing_container_pass
 
     if args.platform == 'containerized' and args.topology == 'enterprise':
@@ -1303,35 +1303,35 @@ Note: --host is required for containerized growth topology only.
     generate_parser.add_argument(
         '--gateway-hosts',
         nargs='+',
-        help='Gateway hosts (required for containerized enterprise topology)'
+        help='Gateway hosts (required for RPM enterprise topology and containerized enterprise topology)'
     )
     generate_parser.add_argument(
         '--controller-hosts',
         nargs='+',
-        help='Controller hosts (required for containerized enterprise topology)'
+        help='Controller hosts (required for RPM enterprise topology and containerized enterprise topology)'
     )
     generate_parser.add_argument(
         '--hop-host',
-        help='Hop node host (required for containerized enterprise topology)'
+        help='Hop node host (required for RPM enterprise topology and containerized enterprise topology)'
     )
     generate_parser.add_argument(
         '--execution-hosts',
         nargs='*',
-        help='Execution node hosts (required for containerized enterprise topology, minimum 2 hosts)'
+        help='Execution node hosts (required for RPM enterprise topology and containerized enterprise topology, minimum 2 hosts)'
     )
     generate_parser.add_argument(
         '--hub-hosts',
         nargs='+',
-        help='Automation Hub hosts (required for containerized enterprise topology)'
+        help='Automation Hub hosts (required for RPM enterprise topology and containerized enterprise topology)'
     )
     generate_parser.add_argument(
         '--eda-hosts',
         nargs='+',
-        help='EDA Controller hosts (required for containerized enterprise topology)'
+        help='EDA Controller hosts (required for RPM enterprise topology and containerized enterprise topology)'
     )
     generate_parser.add_argument(
         '--external-database',
-        help='External database host (required for containerized enterprise topology)'
+        help='External database host (required for RPM enterprise topology and containerized enterprise topology)'
     )
 
     # RPM-specific arguments

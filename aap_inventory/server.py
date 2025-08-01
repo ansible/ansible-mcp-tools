@@ -33,31 +33,31 @@ def get_inventory(
         # required for containerized enterprise topology
         gateway_hosts: Annotated[
             list[str],
-            Field(description='Gateway hosts (required for containerized enterprise topology)'),
+            Field(description='Gateway hosts (required for containerized enterprise topology and RPM enterprise topology, minimum 2 hosts)'),
         ] = [],
         controller_hosts: Annotated[
             list[str],
-            Field(description='Controller hosts (required for containerized enterprise topology)'),
+            Field(description='Controller hosts (required for containerized enterprise topology and RPM enterprise topology, minimum 2 hosts)'),
         ] = [],
         hop_host: Annotated[
             str,
-            Field(description='Hop node host (required for containerized enterprise topology)'),
+            Field(description='Hop node host (required for containerized enterprise topology and RPM enterprise topology)'),
         ] = '',
         execution_hosts: Annotated[
             list[str],
-            Field(description='Execution node hosts (required for containerized enterprise topology, minimum 2 hosts)'),
+            Field(description='Execution node hosts (required for containerized enterprise topology and RPM enterprise topology, minimum 2 hosts)'),
         ] = [], # minimum 2
         hub_hosts:  Annotated[
             list[str],
-            Field(description='Automation Hub hosts (required for containerized enterprise topology)'),
+            Field(description='Automation Hub hosts (required for containerized enterprise topology and RPM enterprise topology, minimum 2 hosts)'),
         ] = [],
         eda_hosts: Annotated[
             list[str],
-            Field(description='EDA Controller hosts (required for containerized enterprise topology)'),
+            Field(description='EDA Controller hosts (required for containerized enterprise topology and RPM enterprise topology, minimum 2 hosts)'),
         ] = [],
         external_database: Annotated[
             str,
-            Field(description='External database host (required for containerized enterprise topology)'),
+            Field(description='External database host (required for containerized enterprise topology and RPM enterprise topology)'),
         ] = '',
         # RPM specfic arguments
         gateway_host: Annotated[
